@@ -1,0 +1,4 @@
+.vscode
+# Ignrore files from testing
+*/input.txt
+*/test.txt

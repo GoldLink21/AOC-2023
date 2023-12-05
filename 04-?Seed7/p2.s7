@@ -1,0 +1,86 @@
+$ include "seed7_05.s7i";
+  include "osfiles.s7i";
+  include "console.s7i";
+  include "getf.s7i";
+  include "scanfile.s7i";
+  include "string.s7i";
+
+# trimValue in strin.s7i if needs string value 
+
+const func array integer: breakList (in string: numString) is func
+    result
+        var array integer: nums is 0 times 0;
+    local
+        var string: s is "";
+    begin
+        for s range split(numString, ' ') do
+            if s <> "" then
+                nums &:= integer(s);
+            end if;
+        end for;
+    end func;
+
+const proc: parseLine (in string: line, inout array integer: copies, inout integer: numCards) is func
+    local
+        var set of integer: winnersSet is (set of integer).value;
+        var integer: matches is 0;
+        var integer: cardNum is 0;
+        var string: cardNumString is "";
+        var array integer: winners is 0 times 0;
+        var array integer: included is 0 times 0;
+        var integer: n is 0;
+    begin
+        if line <> "" then
+            # Grab Card #
+            writeln(line);
+            cardNumString := trim(line[6 .. pos(line, ":") - 1]);
+            writeln(cardNumString);
+            cardNum := integer(
+                getint(cardNumString)
+            );
+            writeln(cardNum);
+            # You have one more copy of the current one
+            incr(copies[cardNum]);
+            # Get winning nums
+            winners := breakList(line[pos(line, ":") + 2 .. pos(line, "|") - 2]);
+            # Add to set of winners
+            for n range winners do
+                incl(winnersSet, n);
+            end for;
+            # Get | .. 
+            included := breakList(line[pos(line, "|") + 2 ..]);
+
+            # Tally up matches
+            for n range included do
+                if n in winnersSet then
+                    matches := matches + 1
+                end if;
+            end for;
+            # Get copes of later cards
+            # write("Matches: ");
+            # writeln(matches);
+
+            for n range cardNum + 1 to cardNum + matches do
+                copies[n] := copies[n] + copies[cardNum];
+            end for;
+            numCards := numCards + copies[cardNum];
+        end if;
+    end func;
+
+const proc: main is func
+    local
+        var string: line is "";
+        var integer: numCards is 0; 
+        # Hard code bounds just to make life easier
+        var array integer: copies is 220 times 0;
+        var integer: n is 0;
+    begin
+        (* Read all the lines *)
+        repeat
+            readln(line);
+            # writeln(line);
+            parseLine(line, copies, numCards);
+        until line = "";
+
+        writeln(numCards);
+    end func;

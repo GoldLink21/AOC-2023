@@ -1,0 +1,70 @@
+$ include "seed7_05.s7i";
+  include "osfiles.s7i";
+  include "console.s7i";
+  include "getf.s7i";
+  include "scanfile.s7i";
+
+# trimValue in strin.s7i if needs string value 
+
+const func array integer: breakList (in string: numString) is func
+    result
+        var array integer: nums is 0 times 0;
+    local
+        var string: s is "";
+    begin
+        for s range split(numString, ' ') do
+            if s <> "" then
+                nums &:= integer(s);
+            end if;
+        end for;
+    end func;
+
+const proc: parseLine (in string: line, inout integer: runningScore) is func
+    local
+        var set of integer: winnersSet is (set of integer).value;
+        var integer: curScore is 0;
+        var string: numberString is "";
+        var array integer: winners is 0 times 0;
+        var array integer: included is 0 times 0;
+        var integer: n is 0;
+    begin
+        if line <> "" then
+            # Only run if not ""
+            # Grab after Card to :
+            numberString := line[6 .. pos(line, ":") - 1];
+            # Get from : to | 
+            winners := breakList(line[pos(line, ":") + 2 .. pos(line, "|") - 2]);
+            # Add to set of winners
+            for n range winners do
+                incl(winnersSet, n);
+            end for;
+            # Get | .. 
+            included := breakList(line[pos(line, "|") + 2 ..]);
+            for n range included do
+                if n in winnersSet then
+                    if curScore = 0 then
+                        curScore := 1;
+                    else
+                        curScore := curScore * 2;
+                    end if;
+                end if;
+                writeln(n);
+            end for;
+            runningScore := runningScore + curScore;
+        end if;
+    end func;
+
+const proc: main is func
+    local
+        var string: line is "";
+        var integer: score is 0; 
+    begin
+        (* Read all the lines *)
+        repeat
+            readln(line);
+            parseLine(line, score);
+            writeln(line);
+        until line = "";
+        writeln(score);
+
+    end func;

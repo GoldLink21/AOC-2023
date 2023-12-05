@@ -1,0 +1,1 @@
+To run these, must run `cat input.txt | s7 p1.s7`
